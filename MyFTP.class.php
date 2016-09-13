@@ -3,10 +3,11 @@
 	/* TODO: 
 	 *  1. 非英文文件名会报错
 	 *  2. 要自动创建文件目录
+	 *  3. 同名文件会覆盖
 	 */
 class MyFTP
 {
-	function upload($uploadDirectory, $callback=null)
+	public function upload($uploadDirectory)
 	{
 		$aUploadedFilesNames = $_FILES["userfile"]["name"];
 		$aUploadedFilesTmpNames = $_FILES["userfile"]["tmp_name"];
@@ -14,7 +15,7 @@ class MyFTP
 		$aUploadedFilesSizes = $_FILES["userfile"]["size"];
 		$aUploadedFilesErrorCodes = $_FILES["userfile"]["error"];
 
-		function uploadEach( $sUploadedFileName, $sUploadedFileTmpName, $sUploadedFileType, $sUploadedFileSize, $nUploadedFileErrorCode, $uploadDirectory, $nFailedNumber, $callback=null )
+		function uploadEach( $sUploadedFileName, $sUploadedFileTmpName, $sUploadedFileType, $sUploadedFileSize, $nUploadedFileErrorCode, $uploadDirectory, $nFailedNumber )
 		{
 			// 上传错误处理	
 			if( $nUploadedFileErrorCode > 0 )
@@ -63,14 +64,8 @@ class MyFTP
 					但如果它返回false，则有可能是文件不是上传的，也有可能是无法移动到指定目录。
 					所以这里要加上 is_uploaded_file 来两步判断。 
 				*/			
-				echo '<br />$sUploadedFileTmpName: ' . $sUploadedFileTmpName . '<br />';								   
-				echo '<br />$uploadDirectory.$sUploadedFileName: ' . $uploadDirectory.$sUploadedFileName . '<br />';
-				if( move_uploaded_file($sUploadedFileTmpName, $uploadDirectory.$sUploadedFileName) )
+				if( move_uploaded_file($sUploadedFileTmpName, $uploadDirectory.basename($sUploadedFileName) ))
 				{
-					if( $callback )
-					{
-						$callback();
-					}
 					return true;
 				}
 				else
@@ -89,7 +84,7 @@ class MyFTP
 		$nFailedNumber = $nUploadedFilesNumber; // 上传失败数初始为上传文件数，成功一个减一
 		for( $i=0; $i<$nUploadedFilesNumber; $i++ )
 		{
-			if( uploadEach($aUploadedFilesNames[$i], $aUploadedFilesTmpNames[$i], $aUploadedFilesTypes[$i], $aUploadedFilesSizes[$i], $aUploadedFilesErrorCodes[$i], $uploadDirectory, $nFailedNumber, $callback=null ) )
+			if( uploadEach($aUploadedFilesNames[$i], $aUploadedFilesTmpNames[$i], $aUploadedFilesTypes[$i], $aUploadedFilesSizes[$i], $aUploadedFilesErrorCodes[$i], $uploadDirectory, $nFailedNumber ) )
 			{
 				$nFailedNumber--;
 			}
@@ -99,6 +94,22 @@ class MyFTP
 		{
 			echo "全部上传成功";
 		}
+	}
+
+	// 读取某个目录。第二个可选参数为不显示的文件名（包括文件夹）的名称数组
+	// 返回所有文件组成的数组，包括 .（当前目录）和..（上一级）
+	public function browseDirectory( $sDirectory, $aPrivateFiles=[] )
+	{
+		$dir =  opendir($sDirectory);
+		while( false !== ($file=readdir($dir)))
+		{
+			if( !in_array($file, $aPrivateFiles) )
+			{
+				$aFiles[] = $file;	
+			}
+		}
+		closedir($dir);
+		return $aFiles;
 	}
 }
 ?>
