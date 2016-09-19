@@ -147,6 +147,7 @@ class MyFTP
 	// 文件名应是basename
 	public function createNewFile($sDirectory, $sFileName)
 	{
+
 		if( file_exists($sDirectory .  $sFileName) )
 		{
 			echo '创建文件失败。文件已存在。';
