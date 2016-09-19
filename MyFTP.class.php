@@ -4,26 +4,6 @@
 class MyFTP
 {
 
-	// 确定一个目录下是否存在某文件
-	// 第二个参数不含路径。如果含有路径也会被删除
-	protected function isFileExisted($sDirectory, $sFileName)
-	{
-		$dir =  opendir($sDirectory);
-		$sFileName = basename( $sFileName );
-		while( false !== ($file=readdir($dir)))
-		{
-			if( $sFileName === $file )
-			{
-				closedir($dir);
-				return true;
-			}
-		}
-		closedir($dir);
-		return false;
-	}
-
-
-
 	// 上传一个或多个文件
 	public function upload($uploadDirectory)
 	{
@@ -167,14 +147,14 @@ class MyFTP
 	// 文件名应是basename
 	public function createNewFile($sDirectory, $sFileName)
 	{
-		if( $this->isFileExisted($sDirectory, $sFileName) )
+		if( file_exists($sDirectory .  $sFileName) )
 		{
 			echo '创建文件失败。文件已存在。';
 			return false;
 		}
 		else
 		{
-			return touch($sDirectory .basename($sFileName) );
+			return touch($sDirectory . $sFileName );
 		}
 	}
 
@@ -182,36 +162,35 @@ class MyFTP
 	// 文件名应是basename
 	public function deleteFile($sDirectory, $sFileName)
 	{
-		if( !$this->isFileExisted($sDirectory, $sFileName) )
+		if( !file_exists($sDirectory . $sFileName) )
 		{
 			echo '删除文件失败。文件不存在。';
 			return false;
 		}
 		else
 		{
-			return unlink($sDirectory . basename($sFileName) );
+			return unlink($sDirectory . $sFileName );
 		}
 	}
 
 	// 复制文件 
 	// 两个文件名应是basename
+	// $sDestination 不含文件名。以 / 结尾
 	public function copyFile($sDirectory, $sFileName, $sDestination)
 	{
-		$sFileName = basename( $sFileName ); 
-		$sDestination = basename( $sDestination );
-		if( !$this->isFileExisted($sDirectory, $sFileName) )
+		if( !file_exists( $sDirectory . $sFileName ) )
 		{
 			echo '复制文件失败。文件不存在。';
 			return false;
 		}
-		elseif( $sDirectory.$sFileName === $sDestination )
+		elseif( $sDirectory === $sDestination )
 		{
 			echo '复制文件失败。不能在同一目录下创建同名文件。';
 			return false;
 		}
 		else
 		{
-			return copy($sDirectory . $sFileName, $sDirectory . $sDestination);
+			return copy($sDirectory . $sFileName, $sDestination . $sFileName);
 		}
 	}
 
@@ -219,29 +198,40 @@ class MyFTP
 	// 文件名应是basename
 	public function renameFile($sDirectory, $sFileName, $sNewName)
 	{
-		if( !$this->isFileExisted($sDirectory, $sFileName) )
+		if( !file_exists( $sDirectory . $sFileName ) )
 		{
 			echo '重命名文件失败。文件不存在。';
 			return false;
 		}
+		elseif( file_exists( $sDirectory . $sNewName ) )
+		{
+			echo '重命名文件失败。当前目录存在同名文件。';
+			return false;
+		}
 		else
 		{
-			return rename($sDirectory . $sFileName, $sDirectory . basename($sNewName) );
+			return rename($sDirectory . $sFileName, $sDirectory . $sNewName );
 		}
 	}
 
 	// 移动文件
 	// 文件名应是basename
+	// $sNewDirectory 不含文件名。以 / 结尾
 	public function moveFile($sDirectory, $sFileName, $sNewDirectory)
 	{
-		if( !$this->isFileExisted($sDirectory, $sFileName) )
+		if( !file_exists($sDirectory . $sFileName) )
 		{
 			echo '移动文件失败。文件不存在。';
 			return false;
 		}
+		elseif( file_exists( $sNewDirectory . $sFileName ) )
+		{
+			echo '移动文件失败。目标目录存在同名文件。';
+			return false;
+		}
 		else
 		{
-			return rename($sDirectory . $sFileName, $sNewDirectory . basename($sFileName) );
+			return rename($sDirectory . $sFileName, $sNewDirectory . $sFileName );
 		}
 	}
 }

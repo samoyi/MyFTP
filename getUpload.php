@@ -1,12 +1,13 @@
-﻿<pre><?php   
+﻿<meta charset="utf-8">
+<pre><?php   
 	
 require "MyFTP.class.php";
 $MyFTP = new MyFTP();
 
 $directory = 'upload/';
-//$MyFTP->upload($uploadDirectory);
+$MyFTP->moveFile($directory."further/", "test22.txt", $directory);
 
-echo $MyFTP->moveFile( $directory, "test22.txt" , "upload/further/");
+
 
 
 
