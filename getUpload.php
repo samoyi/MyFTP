@@ -6,8 +6,7 @@ $MyFTP = new MyFTP();
 $directory = 'upload/';
 //$MyFTP->upload($uploadDirectory);
 
-
-print_r( $MyFTP->browseDirectory($directory) );
+echo $MyFTP->moveFile( $directory, "test22.txt" , "upload/further/");
 
 
 
