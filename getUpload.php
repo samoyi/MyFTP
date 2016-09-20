@@ -1,4 +1,4 @@
-
+<meta charset="utf-8">
 ﻿<pre><?php   
 
 	
@@ -7,7 +7,8 @@ $MyFTP = new MyFTP();
 
 $directory = 'upload/';
 
-$MyFTP->moveFile($directory."further/", "test22.txt", $directory);
+// $MyFTP->moveFile($directory."further/", "test22.txt", $directory);
+
 
 
 ?></pre>
