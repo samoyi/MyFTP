@@ -1,13 +1,17 @@
 <meta charset="utf-8">
 ﻿<pre><?php   
 
-	
+$host = '42.96.194.68';
+$user = 'haoyunlai';
+$password = 'LoApWqMjFQAs';
+
 require "MyFTP.class.php";
-$MyFTP = new MyFTP();
+$MyFTP = new MyFTP($host, $user, $password);
 
-$directory = 'upload/';
+$sRemotefile = 'test/subscribeAutoPlayText.json';
+$sLocalDir = 'download/';
 
-// $MyFTP->moveFile($directory."further/", "test22.txt", $directory);
+$MyFTP->downloadFile($sRemotefile, $sLocalDir);
 
 
 

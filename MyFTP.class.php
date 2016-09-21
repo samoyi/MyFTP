@@ -3,6 +3,16 @@
 
 class MyFTP
 {
+	private $ftp_host;
+	private $user;
+	private $password;
+	function __construct( $host, $user, $password )
+	{
+		$this->ftp_host = $host;
+		$this->ftp_user = $user;
+		$this->ftp_password = $password;
+	}
+
 
 	// 上传一个或多个文件
 	public function upload($uploadDirectory)
@@ -235,5 +245,156 @@ class MyFTP
 			return rename($sDirectory . $sFileName, $sNewDirectory . $sFileName );
 		}
 	}
+
+
+	// 从ftp服务器下载文件
+	// $sRemotefile 包含路径和文件名
+	// $sLocalDir 只包含路径，不包含文件名
+	public function downloadFile($sRemotefile, $sLocalDir)
+	{
+		// connect to host
+		$conn = ftp_connect( $this->ftp_host );
+		if( !$conn )
+		{
+			echo 'Error : Could not connect to ftp server';
+			exit;
+		}
+		echo 'Connect to ' . $this->ftp_host . '<br />';
+
+
+		// log in to host
+		$result = @ftp_login($conn, $this->ftp_user, $this->ftp_password);
+		if( !$result )
+		{
+			echo 'Error : Could not log on as ' . $this->ftp_user;
+			ftp_close( $conn );
+			exit;
+		}
+		echo 'Logged in as ' . $this->ftp_user . '<br />';
+
+
+		// check file times to see if an update is required
+
+		echo 'Checking file time...<br />';
+		$sLocalFile = $sLocalDir . basename($sRemotefile);
+		if( file_exists( $sLocalFile ))
+		{
+			$localtime = filemtime( $sLocalFile );
+			echo 'Local file last updated ';
+			echo date('G:i j-M-Y', $localtime);
+			echo '<br />';
+		}
+		else
+		{
+			$localtime = 0;
+		}
+
+		$remotetime = ftp_mdtm($conn, $sRemotefile);
+		if( !($remotetime >= 0 )) // This dosen't mean the file is not there, server may not support mod time
+		{
+			echo 'could not access remote file time. <br />';
+			$remotetime = $localtime + 1; // make sure of an update
+		}
+		else
+		{
+			echo 'Remote file last updated ';
+			echo date('G:i j-M-Y', $remotetime);
+			echo '<br />';
+		}
+
+		if( !($remotetime > $localtime ))
+		{
+			echo 'Local copy is up to date.<br />';
+			exit;
+		}
+
+
+		// download file
+		echo 'Gettig file from server ...<br />';
+		if( !$success = ftp_get($conn, $sLocalFile, $sRemotefile, FTP_BINARY ))
+		{
+			echo 'Error : Could not download file';
+			ftp_close( $conn );
+			exit;
+		}
+		echo 'File download successfully';
+
+		ftp_close( $conn );
+	}
+
+	// 向ftp服务器上传文件
+	// $sRemoteDir 包含路径和文件名
+	// $sLocalFile 只包含路径，不包含文件名
+	/*public function downloadFile($sRemoteDir, $sLocalFile)
+	{
+		// connect to host
+		$conn = ftp_connect( $this->ftp_host );
+		if( !$conn )
+		{
+			echo 'Error : Could not connect to ftp server';
+			exit;
+		}
+		echo 'Connect to ' . $this->ftp_host . '<br />';
+
+
+		// log in to host
+		$result = @ftp_login($conn, $this->ftp_user, $this->ftp_password);
+		if( !$result )
+		{
+			echo 'Error : Could not log on as ' . $this->ftp_user;
+			ftp_close( $conn );
+			exit;
+		}
+		echo 'Logged in as ' . $this->ftp_user . '<br />';
+
+
+		// check file times to see if an update is required
+
+		echo 'Checking file time...<br />';
+		$sLocalFile = $sLocalDir . basename($sRemoteDir);
+		if( file_exists( $sLocalFile ))
+		{
+			$localtime = filemtime( $sLocalFile );
+			echo 'Local file last updated ';
+			echo date('G:i j-M-Y', $localtime);
+			echo '<br />';
+		}
+		else
+		{
+			$localtime = 0;
+		}
+
+		$remotetime = ftp_mdtm($conn, $sRemoteDir);
+		if( !($remotetime >= 0 )) // This dosen't mean the file is not there, server may not support mod time
+		{
+			echo 'could not access remote file time. <br />';
+			$remotetime = $localtime + 1; // make sure of an update
+		}
+		else
+		{
+			echo 'Remote file last updated ';
+			echo date('G:i j-M-Y', $remotetime);
+			echo '<br />';
+		}
+
+		if( !($remotetime > $localtime ))
+		{
+			echo 'Local copy is up to date.<br />';
+			exit;
+		}
+
+
+		// download file
+		echo 'Gettig file from server ...<br />';
+		if( !$success = ftp_get($conn, $sLocalFile, $sRemoteDir, FTP_BINARY ))
+		{
+			echo 'Error : Could not download file';
+			ftp_close( $conn );
+			exit;
+		}
+		echo 'File download successfully';
+
+		ftp_close( $conn );
+	}*/
 }
 ?>
