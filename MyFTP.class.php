@@ -250,7 +250,7 @@ class MyFTP
 	// 从ftp服务器下载文件
 	// $sRemotefile 包含路径和文件名
 	// $sLocalDir 只包含路径，不包含文件名
-	public function downloadFile($sRemotefile, $sLocalDir)
+	/*public function downloadFile($sRemotefile, $sLocalDir)
 	{
 		// connect to host
 		$conn = ftp_connect( $this->ftp_host );
@@ -320,12 +320,12 @@ class MyFTP
 		echo 'File download successfully';
 
 		ftp_close( $conn );
-	}
+	}*/
 
 	// 向ftp服务器上传文件
 	// $sRemoteDir 包含路径和文件名
 	// $sLocalFile 只包含路径，不包含文件名
-	/*public function downloadFile($sRemoteDir, $sLocalFile)
+	public function uploadFile($sRemoteDir, $sLocalFile)
 	{
 		// connect to host
 		$conn = ftp_connect( $this->ftp_host );
@@ -334,7 +334,7 @@ class MyFTP
 			echo 'Error : Could not connect to ftp server';
 			exit;
 		}
-		echo 'Connect to ' . $this->ftp_host . '<br />';
+		//echo 'Connect to ' . $this->ftp_host . '<br />';
 
 
 		// log in to host
@@ -345,13 +345,11 @@ class MyFTP
 			ftp_close( $conn );
 			exit;
 		}
-		echo 'Logged in as ' . $this->ftp_user . '<br />';
+		//echo 'Logged in as ' . $this->ftp_user . '<br />';
 
 
 		// check file times to see if an update is required
-
 		echo 'Checking file time...<br />';
-		$sLocalFile = $sLocalDir . basename($sRemoteDir);
 		if( file_exists( $sLocalFile ))
 		{
 			$localtime = filemtime( $sLocalFile );
@@ -361,14 +359,17 @@ class MyFTP
 		}
 		else
 		{
-			$localtime = 0;
+			echo 'Error : Local file dose not exsited';
+			ftp_close( $conn );
+			exit;
 		}
 
-		$remotetime = ftp_mdtm($conn, $sRemoteDir);
+		$sRemoteFile = $sRemoteDir . basename($sLocalFile);
+		$remotetime = ftp_mdtm($conn, $sRemoteFile);
 		if( !($remotetime >= 0 )) // This dosen't mean the file is not there, server may not support mod time
 		{
 			echo 'could not access remote file time. <br />';
-			$remotetime = $localtime + 1; // make sure of an update
+			$remotetime = -1; // make sure of an update
 		}
 		else
 		{
@@ -377,24 +378,26 @@ class MyFTP
 			echo '<br />';
 		}
 
-		if( !($remotetime > $localtime ))
+		if( !($remotetime < $localtime ))
 		{
-			echo 'Local copy is up to date.<br />';
+			echo 'Remote copy is up to date.<br />';
 			exit;
 		}
 
-
-		// download file
-		echo 'Gettig file from server ...<br />';
-		if( !$success = ftp_get($conn, $sLocalFile, $sRemoteDir, FTP_BINARY ))
+		ftp_pasv ($conn , true );
+		// upload file
+		echo 'upload file to server ...<br />';
+		echo $sRemoteFile . '<br />';
+		echo $sLocalFile . '<br />';
+		if( !$success = ftp_put($conn, $sRemoteFile, $sLocalFile, FTP_BINARY ))
 		{
-			echo 'Error : Could not download file';
+			echo 'Error : Could not upload file';
 			ftp_close( $conn );
 			exit;
 		}
-		echo 'File download successfully';
+		echo 'File upload successfully';
 
 		ftp_close( $conn );
-	}*/
+	}
 }
 ?>

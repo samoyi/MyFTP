@@ -11,7 +11,10 @@ $MyFTP = new MyFTP($host, $user, $password);
 $sRemotefile = 'test/subscribeAutoPlayText.json';
 $sLocalDir = 'download/';
 
-$MyFTP->downloadFile($sRemotefile, $sLocalDir);
+$sRemoteDir = 'test/';
+$sLocalFile = 'upload/upload.txt';
+
+$MyFTP->uploadFile($sRemoteDir, $sLocalFile);
 
 
 
