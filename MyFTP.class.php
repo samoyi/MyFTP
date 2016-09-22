@@ -15,7 +15,7 @@ class MyFTP
 
 
 	// 上传一个或多个文件
-	public function upload($uploadDirectory)
+	public function uploadByForm($uploadDirectory)
 	{
 		$aUploadedFilesNames = $_FILES["userfile"]["name"];
 		$aUploadedFilesTmpNames = $_FILES["userfile"]["tmp_name"];
@@ -250,7 +250,7 @@ class MyFTP
 	// 从ftp服务器下载文件
 	// $sRemotefile 包含路径和文件名
 	// $sLocalDir 只包含路径，不包含文件名
-	/*public function downloadFile($sRemotefile, $sLocalDir)
+	public function downloadFile($sRemotefile, $sLocalDir)
 	{
 		// connect to host
 		$conn = ftp_connect( $this->ftp_host );
@@ -320,7 +320,7 @@ class MyFTP
 		echo 'File download successfully';
 
 		ftp_close( $conn );
-	}*/
+	}
 
 	// 向ftp服务器上传文件
 	// $sRemoteDir 包含路径和文件名
